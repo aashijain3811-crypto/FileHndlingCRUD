@@ -1,181 +1,213 @@
-#Project - CRUD Operations
-"""
-try
-except
-"""
+# streamlit_crud.py
+
+import streamlit as st
 from pathlib import Path
-import os #Operating System
+import os
 
-def readfileandfolder():
+st.set_page_config(page_title="CRUD File Manager", page_icon="📁", layout="centered")
+
+st.title("📁 CRUD File & Folder Manager")
+
+
+# -------------------------------
+# Helper Function
+# -------------------------------
+def show_files_and_folders():
+    st.subheader("📂 Files & Folders")
+    p = Path(".")
+    items = list(p.rglob("*"))
+
+    if items:
+        for index, item in enumerate(items):
+            st.write(f"{index + 1} - {item}")
+    else:
+        st.info("No files or folders found.")
+
+
+# Sidebar Menu
+menu = st.sidebar.selectbox(
+    "Choose Operation",
+    [
+        "Create File",
+        "Read File",
+        "Update File",
+        "Delete File",
+        "Rename File",
+        "Create Folder",
+        "Delete Folder",
+    ],
+)
+
+show_files_and_folders()
+
+# -------------------------------
+# CREATE FILE
+# -------------------------------
+if menu == "Create File":
+    st.header("📝 Create File")
+
+    file_name = st.text_input("Enter file name")
+    content = st.text_area("Enter file content")
+
+    if st.button("Create File"):
         try:
-            p = Path('')
-            items = list(p.rglob('*'))
-            for index , file in enumerate(items):
-                print(f'{index+1} - {file}')
-        except Exception as e:
-            print(e)
+            p = Path(file_name)
 
-
-def create_file():
-    try:
-        readfileandfolder()
-        # C:\Users\tanis\Desktop\File Handling\hello.txt
-        file_name = input('Enter name of your file: ')
-        p = Path(file_name)
-        if p.exists():
-            print('FILE ALREADY EXISTS')
-        else:
-            with open(file_name,'w') as file:
-                content = input('Enter your file content: ')
-                file.write(content)
-                print('FILE ADDED!')
-    
-    except Exception as e:
-        print(e)
-
-def read_file():
-    try:
-        readfileandfolder()
-        file_name = input('Enter name of your file: ')
-        p = Path(file_name)
-        if p.exists():
-            with open(file_name,'r') as file:
-                print(file.read())
-        else:
-            print('FILE NOT FOUND!')
-    except Exception as e:
-        print(e)
-
-
-def update_file():
-    try:
-        readfileandfolder()
-        file_name = input('Enter name of your file: ')
-        p = Path(file_name)
-        if p.exists():
-            print('Press 1 to overwrite the content')
-            print('Press 2 to append new content')
-            
-            option = int(input('Enter your choice for updating a file: '))
-            if option == 1:
-                with open(file_name,'w') as file:
-                    content = input('Enter your content: ')
-                    file.write(content)
-                    print('CONTENT CHANGED...') 
-
-            elif option == 2:
-                with open(file_name,'a') as file:
-                    content = input('Enter your content: ')
-                    file.write(content)
-                    print('CONTENT CHANGED...') 
-            
+            if p.exists():
+                st.warning("File already exists!")
             else:
-                print("INVALID INPUT")
-        else:
-            print("FILE DOES NOT EXISTS!")
-    
-    except Exception as e:
-        print(e)
+                with open(file_name, "w") as file:
+                    file.write(content)
 
+                st.success("File created successfully!")
 
-def delete_file():
-    readfileandfolder()
-    file_name = input('Enter name of your file: ')
-    p = Path(file_name)
-    if p.exists():
-        os.remove(p) #OS is removing path of that file completely from the system.
-        print("FILE DELETED")
-    else:
-        print('FILE DOES NOT EXISTS!!')
+        except Exception as e:
+            st.error(e)
 
+# -------------------------------
+# READ FILE
+# -------------------------------
+elif menu == "Read File":
+    st.header("📖 Read File")
 
+    file_name = st.text_input("Enter file name to read")
 
+    if st.button("Read File"):
+        try:
+            p = Path(file_name)
 
-def rename_file():
-    readfileandfolder()
-    file_name  = input('Enter name of your file: ')
-    p = Path(file_name)
-    if p.exists():
-        new_file = input('Enter new name of your file: ')
-        p.rename(new_file) 
-        print('FILE RENAMED!')
-    else:
-        print('FILE NOT FOUND!')
+            if p.exists():
+                with open(file_name, "r") as file:
+                    st.text_area("File Content", file.read(), height=300)
 
+            else:
+                st.error("File not found!")
 
+        except Exception as e:
+            st.error(e)
 
+# -------------------------------
+# UPDATE FILE
+# -------------------------------
+elif menu == "Update File":
+    st.header("✏️ Update File")
 
+    file_name = st.text_input("Enter file name")
 
+    update_option = st.radio(
+        "Choose Update Type",
+        ["Overwrite Content", "Append Content"],
+    )
 
-def create_folder():
-    readfileandfolder()
-    folder_name = input('Enter name of your folder: ')
-    p = Path(folder_name)
-    if p.exists():
-        print('FOLDER ALREADY EXISTS!')
-    else:
-        p.mkdir()
-        print('FOLDER CREATED!') 
+    content = st.text_area("Enter new content")
 
+    if st.button("Update File"):
+        try:
+            p = Path(file_name)
 
+            if p.exists():
 
+                if update_option == "Overwrite Content":
+                    with open(file_name, "w") as file:
+                        file.write(content)
 
+                elif update_option == "Append Content":
+                    with open(file_name, "a") as file:
+                        file.write(content)
 
+                st.success("File updated successfully!")
 
+            else:
+                st.error("File does not exist!")
 
+        except Exception as e:
+            st.error(e)
 
-def delete_folder():
-    readfileandfolder()
-    folder_name = input('Enter name of your folder: ')
-    p = Path(folder_name)
-    if p.exists():
-        p.rmdir()
-        print('FOLDER DELETED!')
-    else:
-        print('FOLDER NOT FOUND!') 
+# -------------------------------
+# DELETE FILE
+# -------------------------------
+elif menu == "Delete File":
+    st.header("🗑️ Delete File")
 
-def create_file_in_folder():
-    folder_name = input('Enter name of your folder: ')
-    file_name = input('Enter name of your file: ')
-    p = Path(folder_name)/file_name
-    if p.exists():
-        print('FILE ALREADY EXISTS!')
-    else:
-        pass
+    file_name = st.text_input("Enter file name to delete")
 
+    if st.button("Delete File"):
+        try:
+            p = Path(file_name)
 
+            if p.exists():
+                os.remove(p)
+                st.success("File deleted successfully!")
 
-while True:
-    print("Press 1 for creating a file")
-    print("Press 2 for reading a file")
-    print("Press 3 for updating a file")
-    print("Press 4 for deleting a file")
-    print("Press 5 for renaming a file")
-    print("Press 6 for creating a folder")
-    print("Press 7 for deleting a folder")
-    print("Press 0 for exiting....")
+            else:
+                st.error("File does not exist!")
 
-    option = int(input("Enter your choice: "))
-    if option ==1:
-        create_file()
+        except Exception as e:
+            st.error(e)
 
-    if option ==2:
-        read_file()
+# -------------------------------
+# RENAME FILE
+# -------------------------------
+elif menu == "Rename File":
+    st.header("🔄 Rename File")
 
-    if option == 3:
-        update_file()
+    old_name = st.text_input("Enter current file name")
+    new_name = st.text_input("Enter new file name")
 
-    if option == 4:
-        delete_file()
-    
-    if option == 5:
-        rename_file()
+    if st.button("Rename File"):
+        try:
+            p = Path(old_name)
 
-    if option == 6:
-        create_folder()
-    
-    if option == 7:
-        delete_folder()
+            if p.exists():
+                p.rename(new_name)
+                st.success("File renamed successfully!")
 
-    if option == 0:
-        break
+            else:
+                st.error("File not found!")
+
+        except Exception as e:
+            st.error(e)
+
+# -------------------------------
+# CREATE FOLDER
+# -------------------------------
+elif menu == "Create Folder":
+    st.header("📁 Create Folder")
+
+    folder_name = st.text_input("Enter folder name")
+
+    if st.button("Create Folder"):
+        try:
+            p = Path(folder_name)
+
+            if p.exists():
+                st.warning("Folder already exists!")
+
+            else:
+                p.mkdir()
+                st.success("Folder created successfully!")
+
+        except Exception as e:
+            st.error(e)
+
+# -------------------------------
+# DELETE FOLDER
+# -------------------------------
+elif menu == "Delete Folder":
+    st.header("❌ Delete Folder")
+
+    folder_name = st.text_input("Enter folder name to delete")
+
+    if st.button("Delete Folder"):
+        try: 
+            p = Path(folder_name)
+
+            if p.exists():
+                p.rmdir()
+                st.success("Folder deleted successfully!")
+
+            else:
+                st.error("Folder not found!")
+
+        except Exception as e:
+            st.error(e)
