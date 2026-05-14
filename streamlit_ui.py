@@ -172,7 +172,7 @@ while True:
         rename_file()
 
     if option == 6:
-        create_folder()pip
+        create_folder()
     
     if option == 7:
         delete_folder()
